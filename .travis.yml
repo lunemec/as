@@ -1,3 +1,4 @@
+go_import_path: as
 language: go
 go:
   - "1.x"
