@@ -1,4 +1,8 @@
 # As
+[![Build Status](https://travis-ci.org/lunemec/as.svg?branch=master)](https://travis-ci.org/lunemec/as) [![Go Report Card](https://goreportcard.com/badge/github.com/lunemec/as)](https://goreportcard.com/report/github.com/lunemec/as) [![Maintainability](https://api.codeclimate.com/v1/badges/d0b5da039ba6172a1b3b/maintainability)](https://codeclimate.com/github/lunemec/as/maintainability) 
+[![codecov](https://codecov.io/gh/lunemec/as/branch/master/graph/badge.svg)](https://codecov.io/gh/lunemec/as)
+
+
 `As` is a library to convert numeric types with overflow check in Go.
 
 
