@@ -8,10 +8,25 @@
 
 ## Example
 ```go
-num, err := as.Int32(myBignumber)
-// Checks at runtime if the value of *myBigNumber* overflows int32 or not.
-if err != nil {
-    return err
+package main
+
+import (
+    "fmt"
+
+    "github.com/lunemec/as"
+)
+
+func main() {
+	for _, n := range []int{127, 128} {
+		num, err := as.Int8(n)
+		if err != nil {
+			fmt.Printf("Input invalid: %d, err: %s\n", num, err)
+		} else {
+			fmt.Printf("Input valid: %d\n", num)
+		}
+	}
+	// Output: Input valid: 127
+	// Input invalid: -128, err: 128 (int) overflows int8
 }
 ```
 
