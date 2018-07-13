@@ -4,7 +4,6 @@ package as
 
 import (
 	"fmt"
-	"math"
 )
 
 // Uint64 converts any numeric type to uint64, and returns
@@ -48,9 +47,6 @@ func Uint64(v interface{}) (uint64, error) {
 	case uint64:
 		return n, err
 	case uint:
-		if n > math.MaxUint64 {
-			err = fmt.Errorf(errMsg, n, v)
-		}
 		return uint64(n), err
 	}
 
