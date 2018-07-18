@@ -3,7 +3,6 @@
 package as
 
 import (
-	"fmt"
 	"math"
 )
 
@@ -11,7 +10,6 @@ import (
 // error if there was overflow.
 func Int(v interface{}) (int, error) {
 	var err error
-	var errMsg = "%d (%T) overflows int"
 
 	switch n := v.(type) {
 	case int8:
@@ -22,7 +20,7 @@ func Int(v interface{}) (int, error) {
 		return int(n), err
 	case int64:
 		if n < math.MinInt32 || n > math.MaxInt32 {
-			err = fmt.Errorf(errMsg, n, v)
+			err = OverflowError{ToType: "int", Value: v}
 		}
 		return int(n), err
 	case int:
@@ -33,20 +31,20 @@ func Int(v interface{}) (int, error) {
 		return int(n), err
 	case uint32:
 		if n > math.MaxInt32 {
-			err = fmt.Errorf(errMsg, n, v)
+			err = OverflowError{ToType: "int", Value: v}
 		}
 		return int(n), err
 	case uint64:
 		if n > math.MaxInt32 {
-			err = fmt.Errorf(errMsg, n, v)
+			err = OverflowError{ToType: "int", Value: v}
 		}
 		return int(n), err
 	case uint:
 		if n > math.MaxInt32 {
-			err = fmt.Errorf(errMsg, n, v)
+			err = OverflowError{ToType: "int", Value: v}
 		}
 		return int(n), err
 	}
 
-	return 0, fmt.Errorf("invalid type %T", v)
+	return 0, InvalidTypeError{ToType: "int", Value: v}
 }

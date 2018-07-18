@@ -3,7 +3,6 @@
 package as
 
 import (
-	"fmt"
 	"math"
 )
 
@@ -11,7 +10,6 @@ import (
 // error if there was overflow.
 func Int64(v interface{}) (int64, error) {
 	var err error
-	var errMsg = "%d (%T) overflows int64"
 
 	switch n := v.(type) {
 	case int8:
@@ -32,15 +30,15 @@ func Int64(v interface{}) (int64, error) {
 		return int64(n), err
 	case uint64:
 		if n > math.MaxInt64 {
-			err = fmt.Errorf(errMsg, n, v)
+			err = OverflowError{ToType: "int64", Value: v}
 		}
 		return int64(n), err
 	case uint:
 		if n > math.MaxInt64 {
-			err = fmt.Errorf(errMsg, n, v)
+			err = OverflowError{ToType: "int64", Value: v}
 		}
 		return int64(n), err
 	}
 
-	return 0, fmt.Errorf("invalid type %T", v)
+	return 0, InvalidTypeError{ToType: "int64", Value: v}
 }
