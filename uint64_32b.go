@@ -6,6 +6,7 @@ package as
 // error if there was overflow.
 func Uint64(v interface{}) (uint64, error) {
 	var err error
+	v = indirect(v)
 
 	switch n := v.(type) {
 	case int8:

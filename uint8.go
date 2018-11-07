@@ -8,6 +8,7 @@ import (
 // error if there was overflow.
 func Uint8(v interface{}) (uint8, error) {
 	var err error
+	v = indirect(v)
 
 	switch n := v.(type) {
 	case int8:

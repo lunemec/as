@@ -12,6 +12,8 @@ import (
 func TestUint64(t *testing.T) {
 	assertError(t, as.Uint64, int8(math.MinInt8))
 	assertNoError(t, as.Uint64, int8(math.MaxInt8))
+	pointerToMaxInt8 := int8(math.MaxInt8)
+	assertNoError(t, as.Int, &pointerToMaxInt8)
 
 	assertError(t, as.Uint64, int16(math.MinInt16))
 	assertNoError(t, as.Uint64, int16(math.MaxInt16))

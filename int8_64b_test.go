@@ -12,6 +12,8 @@ import (
 func TestInt8(t *testing.T) {
 	assertNoError(t, as.Int8, int8(math.MinInt8))
 	assertNoError(t, as.Int8, int8(math.MaxInt8))
+	pointerToMaxInt8 := int8(math.MaxInt8)
+	assertNoError(t, as.Int, &pointerToMaxInt8)
 
 	assertError(t, as.Int8, int16(math.MinInt16))
 	assertError(t, as.Int8, int16(math.MaxInt16))
