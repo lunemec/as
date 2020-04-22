@@ -6,7 +6,7 @@ import (
 	"math"
 	"testing"
 
-	"as"
+	"github.com/lunemec/as"
 )
 
 func TestInt16(t *testing.T) {
