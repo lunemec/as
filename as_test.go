@@ -1,8 +1,11 @@
 package as_test
 
 import (
+	"math"
 	"reflect"
 	"testing"
+
+	"github.com/lunemec/as"
 )
 
 // assertError tests if function called with given parameters raises error, if not
@@ -34,4 +37,10 @@ func callfn(fn interface{}, args interface{}) (reflect.Type, interface{}) {
 	outType := outValue[0].Type()
 	err := outValue[1].Interface()
 	return outType, err
+}
+
+func TestT(t *testing.T) {
+	assertNoError(t, as.T[int], int64(math.MaxInt64))
+	assertNoError(t, as.T[int], int64(math.MinInt64))
+	assertError(t, as.T[int], uint64(math.MaxUint64))
 }
