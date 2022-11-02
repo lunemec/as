@@ -28,10 +28,14 @@ func (e OverflowError) Error() string {
 	return fmt.Sprintf("%d (%T) overflows %s", e.Value, e.Value, e.ToType)
 }
 
+// Number constraint is used for type cast into any number.
+// Only Integers for now until float support is added.
 type Number interface {
 	constraints.Integer
 }
 
+// T is generic function to allow for easier checked
+// type cast from any type to any Number type.
 func T[To Number](v any) (To, error) {
 	var (
 		err error
