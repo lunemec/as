@@ -43,3 +43,26 @@ func TestInt16(t *testing.T) {
 	assertNoError(t, as.Int16, uint(0))
 	assertError(t, as.Int16, uint(math.MaxUint64))
 }
+
+var out16 int16
+
+// BenchmarkAs16-8   	36798218	        32.61 ns/op	      39 B/op	       1 allocs/op
+
+func BenchmarkAs16(b *testing.B) {
+	var t int16
+	for n := 0; n < b.N; n++ {
+		t, _ = as.Int16(n)
+	}
+
+	out16 = t
+}
+
+// BenchmarkInt16-8   	1000000000	         0.3211 ns/op	       0 B/op	       0 allocs/op
+func BenchmarkInt16(b *testing.B) {
+	var t int16
+	for n := 0; n < b.N; n++ {
+		t = int16(n)
+	}
+
+	out16 = t
+}

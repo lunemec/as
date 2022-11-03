@@ -44,43 +44,43 @@ func T[To Number](v any) (To, error) {
 	switch any(out).(type) {
 	case int:
 		var n int
-		n, err = Int(any(v))
+		n, err = Int(v)
 		out = To(n)
 	case int8:
 		var n int8
-		n, err = Int8(any(v))
+		n, err = Int8(v)
 		out = To(n)
 	case int16:
 		var n int16
-		n, err = Int16(any(v))
+		n, err = Int16(v)
 		out = To(n)
 	case int32:
 		var n int32
-		n, err = Int32(any(v))
+		n, err = Int32(v)
 		out = To(n)
 	case int64:
 		var n int64
-		n, err = Int64(any(v))
+		n, err = Int64(v)
 		out = To(n)
 	case uint:
 		var n uint
-		n, err = Uint(any(v))
+		n, err = Uint(v)
 		out = To(n)
 	case uint8:
 		var n uint8
-		n, err = Uint8(any(v))
+		n, err = Uint8(v)
 		out = To(n)
 	case uint16:
 		var n uint16
-		n, err = Uint16(any(v))
+		n, err = Uint16(v)
 		out = To(n)
 	case uint32:
 		var n uint32
-		n, err = Uint32(any(v))
+		n, err = Uint32(v)
 		out = To(n)
 	case uint64:
 		var n uint64
-		n, err = Uint64(any(v))
+		n, err = Uint64(v)
 		out = To(n)
 	default:
 		return out, InvalidTypeError{
