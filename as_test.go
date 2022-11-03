@@ -1,8 +1,11 @@
 package as_test
 
 import (
+	"math"
 	"reflect"
 	"testing"
+
+	"github.com/lunemec/as"
 )
 
 // assertError tests if function called with given parameters raises error, if not
@@ -34,4 +37,34 @@ func callfn(fn interface{}, args interface{}) (reflect.Type, interface{}) {
 	outType := outValue[0].Type()
 	err := outValue[1].Interface()
 	return outType, err
+}
+
+func TestT(t *testing.T) {
+	assertNoError(t, as.T[int], int64(math.MaxInt64))
+	assertNoError(t, as.T[int], int64(math.MinInt64))
+	assertError(t, as.T[int], uint64(math.MaxUint64))
+	// uintptr is not supported, will error
+	assertError(t, as.T[uintptr], uint64(math.MaxUint64))
+}
+
+var out int
+
+// BenchmarkT-8   	91144112	        12.90 ns/op	       8 B/op	       0 allocs/op
+func BenchmarkT(b *testing.B) {
+	var t int
+	for n := 0; n < b.N; n++ {
+		t, _ = as.T[int](n)
+	}
+
+	out = t
+}
+
+// BenchmarkInt-8   	108703077	        10.98 ns/op	       8 B/op	       0 allocs/op
+func BenchmarkInt(b *testing.B) {
+	var t int
+	for n := 0; n < b.N; n++ {
+		t, _ = as.Int(n)
+	}
+
+	out = t
 }

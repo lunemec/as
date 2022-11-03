@@ -4,6 +4,8 @@ package as
 import (
 	"fmt"
 	"reflect"
+
+	"golang.org/x/exp/constraints"
 )
 
 // InvalidTypeError is returned when user supplied invalid type to convert.
@@ -24,6 +26,69 @@ type OverflowError struct {
 
 func (e OverflowError) Error() string {
 	return fmt.Sprintf("%d (%T) overflows %s", e.Value, e.Value, e.ToType)
+}
+
+// Number constraint is used for type cast into any number.
+// Only Integers for now until float support is added.
+type Number interface {
+	constraints.Integer
+}
+
+// T is generic function to allow for easier checked
+// type cast from any type to any Number type.
+func T[To Number](v any) (To, error) {
+	var (
+		err error
+		out To
+	)
+	switch any(out).(type) {
+	case int:
+		var n int
+		n, err = Int(v)
+		out = To(n)
+	case int8:
+		var n int8
+		n, err = Int8(v)
+		out = To(n)
+	case int16:
+		var n int16
+		n, err = Int16(v)
+		out = To(n)
+	case int32:
+		var n int32
+		n, err = Int32(v)
+		out = To(n)
+	case int64:
+		var n int64
+		n, err = Int64(v)
+		out = To(n)
+	case uint:
+		var n uint
+		n, err = Uint(v)
+		out = To(n)
+	case uint8:
+		var n uint8
+		n, err = Uint8(v)
+		out = To(n)
+	case uint16:
+		var n uint16
+		n, err = Uint16(v)
+		out = To(n)
+	case uint32:
+		var n uint32
+		n, err = Uint32(v)
+		out = To(n)
+	case uint64:
+		var n uint64
+		n, err = Uint64(v)
+		out = To(n)
+	default:
+		return out, InvalidTypeError{
+			ToType: fmt.Sprintf("%T", out),
+			Value:  v,
+		}
+	}
+	return To(out), err
 }
 
 // From html/template/content.go
