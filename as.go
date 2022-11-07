@@ -41,6 +41,7 @@ func T[To Number](v any) (To, error) {
 		err error
 		out To
 	)
+	v = indirect(v)
 	switch any(out).(type) {
 	case int:
 		var n int
@@ -99,13 +100,40 @@ func indirect(a interface{}) interface{} {
 	if a == nil {
 		return nil
 	}
-	if t := reflect.TypeOf(a); t.Kind() != reflect.Ptr {
-		// Avoid creating a reflect.Value if it's not a pointer.
-		return a
+	typeof := reflect.TypeOf(a)
+	switch kind := typeof.Kind(); kind {
+	case reflect.Ptr:
+		v := reflect.ValueOf(a)
+		for v.Kind() == reflect.Ptr && !v.IsNil() {
+			v = v.Elem()
+		}
+		return v.Interface()
+	case reflect.Int:
+		return convertTo(a, int(0))
+	case reflect.Int8:
+		return convertTo(a, int8(0))
+	case reflect.Int16:
+		return convertTo(a, int16(0))
+	case reflect.Int32:
+		return convertTo(a, int32(0))
+	case reflect.Int64:
+		return convertTo(a, int64(0))
+	case reflect.Uint:
+		return convertTo(a, uint(0))
+	case reflect.Uint8:
+		return convertTo(a, uint8(0))
+	case reflect.Uint16:
+		return convertTo(a, uint16(0))
+	case reflect.Uint32:
+		return convertTo(a, uint32(0))
+	case reflect.Uint64:
+		return convertTo(a, uint64(0))
 	}
-	v := reflect.ValueOf(a)
-	for v.Kind() == reflect.Ptr && !v.IsNil() {
-		v = v.Elem()
-	}
-	return v.Interface()
+
+	return a
+}
+
+func convertTo(v interface{}, to interface{}) interface{} {
+	valueof := reflect.ValueOf(v)
+	return valueof.Convert(reflect.TypeOf(to)).Interface()
 }
