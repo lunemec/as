@@ -58,7 +58,7 @@ var out int
 
 // BenchmarkT-8   	91144112	        12.90 ns/op	       8 B/op	       0 allocs/op
 // After changes to indirect:
-// BenchmarkT-8   	22541948	        48.50 ns/op	      24 B/op	       2 allocs/op
+// BenchmarkT-8   	40429498	        29.37 ns/op	      16 B/op	       1 allocs/op
 func BenchmarkT(b *testing.B) {
 	var t int
 	for n := 0; n < b.N; n++ {
