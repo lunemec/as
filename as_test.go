@@ -47,9 +47,18 @@ func TestT(t *testing.T) {
 	assertError(t, as.T[uintptr], uint64(math.MaxUint64))
 }
 
+func TestTCustomType(t *testing.T) {
+	type aliasedInt int
+
+	assertNoError(t, as.T[int], aliasedInt(math.MaxInt64))
+	assertNoError(t, as.T[int], aliasedInt(math.MinInt64))
+}
+
 var out int
 
 // BenchmarkT-8   	91144112	        12.90 ns/op	       8 B/op	       0 allocs/op
+// After changes to indirect:
+// BenchmarkT-8   	40429498	        29.37 ns/op	      16 B/op	       1 allocs/op
 func BenchmarkT(b *testing.B) {
 	var t int
 	for n := 0; n < b.N; n++ {
@@ -60,6 +69,8 @@ func BenchmarkT(b *testing.B) {
 }
 
 // BenchmarkInt-8   	108703077	        10.98 ns/op	       8 B/op	       0 allocs/op
+// After changes to indirect:
+// BenchmarkInt-8   	42888086	        28.00 ns/op	      16 B/op	       1 allocs/op
 func BenchmarkInt(b *testing.B) {
 	var t int
 	for n := 0; n < b.N; n++ {
