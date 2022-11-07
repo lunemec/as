@@ -41,8 +41,7 @@ func T[To Number](v any) (To, error) {
 		err error
 		out To
 	)
-
-	switch any(out).(type) {
+	switch any(indirect(out)).(type) {
 	case int:
 		var n int
 		n, err = Int(v)
