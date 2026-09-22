@@ -167,22 +167,6 @@ func TestTSuccessDoesNotAllocate(t *testing.T) {
 	assert.Zero(t, allocations)
 }
 
-func FuzzInt(f *testing.F) {
-	f.Add(uint(0))
-	f.Add(uint(math.MaxInt))
-	f.Add(^uint(0))
-
-	f.Fuzz(func(t *testing.T, value uint) {
-		got, err := as.Int(value)
-		if value > uint(math.MaxInt) {
-			require.Error(t, err)
-			return
-		}
-		require.NoError(t, err)
-		assert.Equal(t, int(value), got)
-	})
-}
-
 func requireCast[To, From as.Number](t *testing.T, value From, expected To) {
 	t.Helper()
 	got, err := as.T[To](value)

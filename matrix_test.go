@@ -54,11 +54,65 @@ func testIntegerSources[To as.Number](t *testing.T) {
 	testMatrixValue[To](t, uint32(0))
 	testMatrixValue[To](t, uint32(math.MaxUint32))
 	testMatrixValue[To](t, uint64(0))
+	testMatrixValue[To](t, uint64(math.MaxUint32))
 	testMatrixValue[To](t, uint64(math.MaxUint64))
 	testMatrixValue[To](t, uint(0))
+	if ^uint(0) > uint(math.MaxUint32) {
+		testMatrixValue[To](t, uint(math.MaxUint32))
+	}
 	testMatrixValue[To](t, ^uint(0))
 	testMatrixValue[To](t, uintptr(0))
 	testMatrixValue[To](t, ^uintptr(0))
+}
+
+func FuzzIntegerConversions(f *testing.F) {
+	f.Add(int64(0), uint64(0))
+	f.Add(int64(-1), uint64(1))
+	f.Add(int64(math.MinInt8-1), uint64(math.MaxUint8+1))
+	f.Add(int64(math.MinInt16-1), uint64(math.MaxUint16+1))
+	f.Add(int64(math.MinInt32-1), uint64(math.MaxUint32+1))
+	f.Add(int64(math.MinInt64), uint64(math.MaxUint64))
+	f.Add(int64(math.MaxInt64), uint64(math.MaxInt64))
+
+	f.Fuzz(func(t *testing.T, signed int64, unsigned uint64) {
+		fuzzIntegerTargets(t, int(signed))
+		fuzzIntegerTargets(t, int8(signed))
+		fuzzIntegerTargets(t, int16(signed))
+		fuzzIntegerTargets(t, int32(signed))
+		fuzzIntegerTargets(t, signed)
+		fuzzIntegerTargets(t, uint(unsigned))
+		fuzzIntegerTargets(t, uint8(unsigned))
+		fuzzIntegerTargets(t, uint16(unsigned))
+		fuzzIntegerTargets(t, uint32(unsigned))
+		fuzzIntegerTargets(t, unsigned)
+		fuzzIntegerTargets(t, uintptr(unsigned))
+	})
+}
+
+func fuzzIntegerTargets[From as.Number](t *testing.T, value From) {
+	t.Helper()
+	fuzzIntegerTarget[int](t, value)
+	fuzzIntegerTarget[int8](t, value)
+	fuzzIntegerTarget[int16](t, value)
+	fuzzIntegerTarget[int32](t, value)
+	fuzzIntegerTarget[int64](t, value)
+	fuzzIntegerTarget[uint](t, value)
+	fuzzIntegerTarget[uint8](t, value)
+	fuzzIntegerTarget[uint16](t, value)
+	fuzzIntegerTarget[uint32](t, value)
+	fuzzIntegerTarget[uint64](t, value)
+	fuzzIntegerTarget[uintptr](t, value)
+}
+
+func fuzzIntegerTarget[To, From as.Number](t *testing.T, value From) {
+	t.Helper()
+	got, err := as.T[To](value)
+	if got != To(value) {
+		t.Fatalf("T[%T](%v) = %v, want wrapped value %v", got, value, got, To(value))
+	}
+	if fits := integerFits[To](value); fits != (err == nil) {
+		t.Fatalf("T[%T](%T(%v)) error = %v, fits = %v", got, value, value, err, fits)
+	}
 }
 
 func testMatrixValue[To, From as.Number](t *testing.T, value From) {
