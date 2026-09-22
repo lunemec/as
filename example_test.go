@@ -3,7 +3,7 @@ package as_test
 import (
 	"fmt"
 
-	"github.com/lunemec/as"
+	"github.com/lunemec/as/v2"
 )
 
 func Example() {

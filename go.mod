@@ -1,4 +1,4 @@
-module github.com/lunemec/as
+module github.com/lunemec/as/v2
 
 go 1.24
 

@@ -1,7 +1,7 @@
 # As
 
 [![CI](https://github.com/lunemec/as/actions/workflows/ci.yml/badge.svg)](https://github.com/lunemec/as/actions/workflows/ci.yml)
-[![Go Report Card](https://goreportcard.com/badge/github.com/lunemec/as)](https://goreportcard.com/report/github.com/lunemec/as)
+[![Go Report Card](https://goreportcard.com/badge/github.com/lunemec/as/v2)](https://goreportcard.com/report/github.com/lunemec/as/v2)
 [![Maintainability](https://api.codeclimate.com/v1/badges/d0b5da039ba6172a1b3b/maintainability)](https://codeclimate.com/github/lunemec/as/maintainability)
 
 `as` converts integer types and reports values that do not fit in the destination type. It requires Go 1.24 or newer.
@@ -9,7 +9,7 @@
 ## Installation
 
 ```sh
-go get github.com/lunemec/as
+go get github.com/lunemec/as/v2
 ```
 
 ## Usage

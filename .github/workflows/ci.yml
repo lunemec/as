@@ -34,6 +34,8 @@ jobs:
         with:
           go-version: ${{ matrix.go-version }}
           cache: true
+      - name: Verify v2 module path
+        run: test "$(go list -m)" = github.com/lunemec/as/v2
       - name: Test with race detector and coverage
         run: go test -race -coverprofile=coverage.out -covermode=atomic ./...
       - name: Vet
