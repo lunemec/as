@@ -1,138 +1,83 @@
-// Package as provides a easy way to convert numeric types with overflow check.
+// Package as converts integer types and reports overflow.
 package as
 
 import (
 	"fmt"
 	"reflect"
-
-	"golang.org/x/exp/constraints"
 )
 
-// InvalidTypeError is returned when user supplied invalid type to convert.
-type InvalidTypeError struct {
-	ToType string
-	Value  interface{}
-}
-
-func (e InvalidTypeError) Error() string {
-	return fmt.Sprintf("unsupported type %T (converting to %s)", e.Value, e.ToType)
-}
-
-// OverflowError is returned when given value overflows maximum number a type can hold.
+// OverflowError is returned when a value cannot be represented by the target type.
 type OverflowError struct {
 	ToType string
-	Value  interface{}
+	Value  any
 }
 
 func (e OverflowError) Error() string {
 	return fmt.Sprintf("%d (%T) overflows %s", e.Value, e.Value, e.ToType)
 }
 
-// Number constraint is used for type cast into any number.
-// Only Integers for now until float support is added.
+// Number contains all supported integer types.
 type Number interface {
-	constraints.Integer
+	~int | ~int8 | ~int16 | ~int32 | ~int64 |
+		~uint | ~uint8 | ~uint16 | ~uint32 | ~uint64 | ~uintptr
 }
 
-// T is generic function to allow for easier checked
-// type cast from any type to any Number type.
-func T[To Number](v any) (To, error) {
-	var (
-		err error
-		out To
-	)
-	switch any(indirect(out)).(type) {
-	case int:
-		var n int
-		n, err = Int(v)
-		out = To(n)
-	case int8:
-		var n int8
-		n, err = Int8(v)
-		out = To(n)
-	case int16:
-		var n int16
-		n, err = Int16(v)
-		out = To(n)
-	case int32:
-		var n int32
-		n, err = Int32(v)
-		out = To(n)
-	case int64:
-		var n int64
-		n, err = Int64(v)
-		out = To(n)
-	case uint:
-		var n uint
-		n, err = Uint(v)
-		out = To(n)
-	case uint8:
-		var n uint8
-		n, err = Uint8(v)
-		out = To(n)
-	case uint16:
-		var n uint16
-		n, err = Uint16(v)
-		out = To(n)
-	case uint32:
-		var n uint32
-		n, err = Uint32(v)
-		out = To(n)
-	case uint64:
-		var n uint64
-		n, err = Uint64(v)
-		out = To(n)
-	default:
-		return out, InvalidTypeError{
-			ToType: fmt.Sprintf("%T", out),
-			Value:  v,
-		}
+// T converts v to To and reports whether the value overflows To.
+func T[To, From Number](v From) (To, error) {
+	out, ok := checkedCast[To](v)
+	if !ok {
+		return out, overflowError[To](v)
 	}
-	return To(out), err
+	return out, nil
 }
 
-// From html/template/content.go
-// Copyright 2011 The Go Authors. All rights reserved.
-// indirect returns the value, after dereferencing as many times
-// as necessary to reach the base type (or nil).
-func indirect(a interface{}) interface{} {
-	if a == nil {
-		return nil
+func checkedCast[To, From Number](v From) (To, bool) {
+	out := To(v)
+	ok := From(out) == v &&
+		(isSigned[From]() == isSigned[To]() || (v >= 0 && out >= 0))
+	return out, ok
+}
+
+func isSigned[T Number]() bool {
+	return ^T(0) < 0
+}
+
+func overflowError[To, From Number](v From) error {
+	return OverflowError{
+		ToType: reflect.TypeFor[To]().String(),
+		Value:  v,
 	}
-	typeof := reflect.TypeOf(a)
-	switch kind := typeof.Kind(); kind {
-	case reflect.Ptr:
-		v := reflect.ValueOf(a)
-		for v.Kind() == reflect.Ptr && !v.IsNil() {
-			v = v.Elem()
-		}
-		return v.Interface()
-	case reflect.Int:
-		return convertTo(a, int(0))
-	case reflect.Int8:
-		return convertTo(a, int8(0))
-	case reflect.Int16:
-		return convertTo(a, int16(0))
-	case reflect.Int32:
-		return convertTo(a, int32(0))
-	case reflect.Int64:
-		return convertTo(a, int64(0))
-	case reflect.Uint:
-		return convertTo(a, uint(0))
-	case reflect.Uint8:
-		return convertTo(a, uint8(0))
-	case reflect.Uint16:
-		return convertTo(a, uint16(0))
-	case reflect.Uint32:
-		return convertTo(a, uint32(0))
-	case reflect.Uint64:
-		return convertTo(a, uint64(0))
-	}
-
-	return a
 }
 
-func convertTo(v interface{}, to interface{}) interface{} {
-	valueof := reflect.ValueOf(v)
-	return valueof.Convert(reflect.TypeOf(to)).Interface()
-}
+// Int converts v to int and reports overflow.
+func Int[From Number](v From) (int, error) { return T[int](v) }
+
+// Int8 converts v to int8 and reports overflow.
+func Int8[From Number](v From) (int8, error) { return T[int8](v) }
+
+// Int16 converts v to int16 and reports overflow.
+func Int16[From Number](v From) (int16, error) { return T[int16](v) }
+
+// Int32 converts v to int32 and reports overflow.
+func Int32[From Number](v From) (int32, error) { return T[int32](v) }
+
+// Int64 converts v to int64 and reports overflow.
+func Int64[From Number](v From) (int64, error) { return T[int64](v) }
+
+// Uint converts v to uint and reports overflow.
+func Uint[From Number](v From) (uint, error) { return T[uint](v) }
+
+// Uint8 converts v to uint8 and reports overflow.
+func Uint8[From Number](v From) (uint8, error) { return T[uint8](v) }
+
+// Uint16 converts v to uint16 and reports overflow.
+func Uint16[From Number](v From) (uint16, error) { return T[uint16](v) }
+
+// Uint32 converts v to uint32 and reports overflow.
+func Uint32[From Number](v From) (uint32, error) { return T[uint32](v) }
+
+// Uint64 converts v to uint64 and reports overflow.
+func Uint64[From Number](v From) (uint64, error) { return T[uint64](v) }
+
+// Uintptr converts v to uintptr and reports overflow.
+func Uintptr[From Number](v From) (uintptr, error) { return T[uintptr](v) }
