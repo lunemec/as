@@ -3,7 +3,7 @@ package as_test
 import (
 	"fmt"
 
-	"github.com/lunemec/as"
+	"github.com/lunemec/as/v2"
 )
 
 func Example() {
@@ -39,8 +39,23 @@ func ExampleSliceT() {
 	// 	* at index [1]: 128 (int) overflows int8
 }
 
+func ExampleSliceTInto() {
+	dst := make([]int8, 2)
+	err := as.SliceTInto(dst, []int{127, 128})
+	fmt.Printf("Output: %+v, error: %+v\n", dst, err)
+	// Output: Output: [127 0], error: 1 error occurred:
+	// 	* at index [1]: 128 (int) overflows int8
+}
+
 func ExampleSliceTUnchecked() {
 	out := as.SliceTUnchecked[int, int8]([]int{127, 128})
 	fmt.Printf("Output: %+v\n", out)
 	// Output: Output: [127 -128]
+}
+
+func ExampleSliceTUncheckedInto() {
+	dst := make([]int8, 2)
+	err := as.SliceTUncheckedInto(dst, []int{127, 128})
+	fmt.Printf("Output: %+v, error: %v\n", dst, err)
+	// Output: Output: [127 -128], error: <nil>
 }
