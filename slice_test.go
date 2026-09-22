@@ -24,9 +24,14 @@ func TestSliceT(t *testing.T) {
 			expected: []int32{0, 1, 2, math.MaxInt32},
 		},
 		{
+			name:     "all fitted positions are converted",
+			src:      []uint64{0, 1, 2, math.MaxInt32, 1, 2, 3},
+			expected: []int32{0, 1, 2, math.MaxInt32, 1, 2, 3},
+		},
+		{
 			name:     "overflow is zeroed",
-			src:      []uint64{0, math.MaxUint32},
-			expected: []int32{0, 0},
+			src:      []uint64{0, 1, 2, math.MaxUint32},
+			expected: []int32{0, 1, 2, 0},
 			wantErr:  true,
 		},
 	}
@@ -170,6 +175,11 @@ func TestSliceTUnchecked(t *testing.T) {
 			assert.Equal(t, tt.expected, as.SliceTUnchecked[uint64, int32](tt.src))
 		})
 	}
+
+	t.Run("uint8 fit and wrap", func(t *testing.T) {
+		assert.Equal(t, []uint8{0, 1, 2, math.MaxUint8}, as.SliceTUnchecked[uint64, uint8]([]uint64{0, 1, 2, math.MaxUint8}))
+		assert.Equal(t, []uint8{0, 1, 2, math.MaxUint8}, as.SliceTUnchecked[uint64, uint8]([]uint64{0, 1, 2, math.MaxInt32}))
+	})
 
 	t.Run("floating point", func(t *testing.T) {
 		assert.Equal(t, []int{1, 2}, as.SliceTUnchecked[float64, int]([]float64{1, 2}))

@@ -1,0 +1,110 @@
+package as_test
+
+import (
+	"fmt"
+	"math"
+	"math/big"
+	"reflect"
+	"testing"
+
+	"github.com/lunemec/as"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+)
+
+func TestIntegerConversionMatrix(t *testing.T) {
+	runIntegerMatrix[int](t, "int")
+	runIntegerMatrix[int8](t, "int8")
+	runIntegerMatrix[int16](t, "int16")
+	runIntegerMatrix[int32](t, "int32")
+	runIntegerMatrix[int64](t, "int64")
+	runIntegerMatrix[uint](t, "uint")
+	runIntegerMatrix[uint8](t, "uint8")
+	runIntegerMatrix[uint16](t, "uint16")
+	runIntegerMatrix[uint32](t, "uint32")
+	runIntegerMatrix[uint64](t, "uint64")
+	runIntegerMatrix[uintptr](t, "uintptr")
+}
+
+func runIntegerMatrix[To as.Number](t *testing.T, name string) {
+	t.Helper()
+	t.Run(name, func(t *testing.T) {
+		testIntegerSources[To](t)
+	})
+}
+
+func testIntegerSources[To as.Number](t *testing.T) {
+	t.Helper()
+
+	testMatrixValue[To](t, int8(math.MinInt8))
+	testMatrixValue[To](t, int8(math.MaxInt8))
+	testMatrixValue[To](t, int16(math.MinInt16))
+	testMatrixValue[To](t, int16(math.MaxInt16))
+	testMatrixValue[To](t, int32(math.MinInt32))
+	testMatrixValue[To](t, int32(math.MaxInt32))
+	testMatrixValue[To](t, int64(math.MinInt64))
+	testMatrixValue[To](t, int64(math.MaxInt64))
+	testMatrixValue[To](t, int(math.MinInt))
+	testMatrixValue[To](t, int(math.MaxInt))
+
+	testMatrixValue[To](t, uint8(0))
+	testMatrixValue[To](t, uint8(math.MaxUint8))
+	testMatrixValue[To](t, uint16(0))
+	testMatrixValue[To](t, uint16(math.MaxUint16))
+	testMatrixValue[To](t, uint32(0))
+	testMatrixValue[To](t, uint32(math.MaxUint32))
+	testMatrixValue[To](t, uint64(0))
+	testMatrixValue[To](t, uint64(math.MaxUint64))
+	testMatrixValue[To](t, uint(0))
+	testMatrixValue[To](t, ^uint(0))
+	testMatrixValue[To](t, uintptr(0))
+	testMatrixValue[To](t, ^uintptr(0))
+}
+
+func testMatrixValue[To, From as.Number](t *testing.T, value From) {
+	t.Helper()
+
+	t.Run(fmt.Sprintf("%T(%v)", value, value), func(t *testing.T) {
+		got, err := as.T[To](value)
+		assert.Equal(t, To(value), got)
+
+		if integerFits[To](value) {
+			require.NoError(t, err)
+			return
+		}
+
+		require.Error(t, err)
+		var overflow as.OverflowError
+		require.ErrorAs(t, err, &overflow)
+		assert.Equal(t, reflect.TypeFor[To]().String(), overflow.ToType)
+		assert.Equal(t, value, overflow.Value)
+	})
+}
+
+func integerFits[To, From as.Number](value From) bool {
+	number := bigInteger(value)
+	bits := reflect.TypeFor[To]().Bits()
+	limit := new(big.Int).Lsh(big.NewInt(1), uint(bits))
+	minimum := big.NewInt(0)
+
+	switch reflect.TypeFor[To]().Kind() {
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		limit.Rsh(limit, 1)
+		minimum.Neg(new(big.Int).Set(limit))
+	}
+
+	maximum := new(big.Int).Sub(limit, big.NewInt(1))
+	return number.Cmp(minimum) >= 0 && number.Cmp(maximum) <= 0
+}
+
+func bigInteger[T as.Number](value T) *big.Int {
+	reflected := reflect.ValueOf(value)
+	switch reflected.Kind() {
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return big.NewInt(reflected.Int())
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
+		return new(big.Int).SetUint64(reflected.Uint())
+	default:
+		panic("unreachable integer kind")
+	}
+}

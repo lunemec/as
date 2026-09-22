@@ -12,6 +12,8 @@ import (
 
 type namedInt16 int16
 type namedInt8 int8
+type namedInt int
+type namedIntOut int
 type namedUint16 uint16
 type namedUint8 uint8
 type namedUintptr uintptr
@@ -104,6 +106,10 @@ func TestTCrossSignedModuloValues(t *testing.T) {
 }
 
 func TestTNamedTypes(t *testing.T) {
+	requireCast(t, namedInt(math.MinInt), int(math.MinInt))
+	requireCast(t, namedInt(math.MaxInt), int(math.MaxInt))
+	requireCast(t, namedInt(math.MinInt), namedIntOut(math.MinInt))
+	requireCast(t, namedInt(math.MaxInt), namedIntOut(math.MaxInt))
 	requireCast(t, namedInt16(math.MaxInt8), namedInt8(math.MaxInt8))
 	requireOverflow(t, namedInt16(math.MaxInt8+1), namedInt8(math.MinInt8))
 	requireCast(t, namedUint16(math.MaxUint8), namedUint8(math.MaxUint8))
